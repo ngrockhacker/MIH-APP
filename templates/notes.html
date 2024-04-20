@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notes</title>
+    <style>
+        /* Existing styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Rest of your existing styles... */
+        .top-left {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+        }
+
+        .home-button {
+            background-color: orange;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .home-button:hover {
+            background-color: #ff7f00;
+        }
+
+        .top-right {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+        }
+
+        #dropdownButton {
+            background-color: orange;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2em;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #fff;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1;
+        }
+
+        .dropdown a {
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            color: #222;
+        }
+
+        .dropdown a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .note-container {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+
+        .note-container h3 {
+            color: orange;
+        }
+
+        .note-container p {
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            resize: vertical;
+        }
+
+        button[type="submit"] {
+            background-color: orange;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #ff7f00;
+        }
+
+        /* Styles for the daily task popup */
+        #dailyTaskModal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            padding-top: 60px;
+        }
+
+        #dailyTaskModalContent {
+            background-color: #fefefe;
+            margin: 5% auto; /* 5% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Adjust as needed */
+            text-align: center;
+            border-radius: 15px; /* Rounded corners for the modal */
+        }
+        
+        #dailyTaskModalContent button {
+            background-color: orange;
+            color: #fff;
+            border: none;
+            border-radius: 10px; /* Rounded corners for the button */
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        #dailyTaskModalContent button:hover {
+            background-color: #ff7f00;
+        }
+
+        /* Add any other custom styles here */
+    </style>
+</head>
+<body>
+    <div class="top-left">
+        <a href="/" style="text-decoration: none;"><button class="home-button">Home</button></a>
+        <button id="viewDailyTaskButton" class="home-button" style="margin-left: 10px;">View Daily Task</button>
+        <input type="checkbox" id="dailyTaskCheckbox" class="home-checkbox" {{ 'checked' if daily_task_completed else '' }}/>
+        <label for="dailyTaskCheckbox">Daily Task Completed</label>
+    </div>
+    
+
+    <div class="top-right">
+        <button id="dropdownButton">+</button>
+        <div id="dropdownMenu" class="dropdown">
+            <a href="#" onclick="createNewNoteSection('Daily Task')">Daily Task</a>
+            <a href="#" onclick="createNewNoteSection('Introspect')">Introspect</a>
+            <a href="#" onclick="createNewNoteSection('Detect')">Detect</a>
+            <a href="#" onclick="createNewNoteSection('Negate')">Negate</a>
+            <a href="#" onclick="createNewNoteSection('Subsitute')">Substitute</a>
+            <a href="#" onclick="createNewNoteSection('Extra Notes')">Extra Notes</a>
+        </div>
+    </div>
+
+    <h1 style="color: orange; text-align: center;">Notes</h1>
+
+    <div id="notesArea">
+        {% for note in notes %}
+            <div class="note-container">
+                <h3>{{ note.type }}</h3>
+                <p>{{ note.content }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Daily Task Popup -->
+    <div id="dailyTaskModal">
+        <div id="dailyTaskModalContent">
+            <p>Your Task for today is: <br><strong>{{ daily_task }}</strong></p>
+            <button onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        document.getElementById("dropdownButton").onclick = function() {
+            document.getElementById("dropdownMenu").style.display = 'block';
+        };
+
+        document.getElementById("viewDailyTaskButton").onclick = function() {
+            document.getElementById("dailyTaskModal").style.display = 'block';
+        };
+
+        document.getElementById("dailyTaskCheckbox").onchange = function() {
+            let checkboxState = this.checked;
+            let currentDate = '{{ date }}';  // Flask template variable for the current date
+            $.ajax({
+                type: 'POST',
+                url: '/save_daily_task_state',
+                data: { daily_task_completed: checkboxState, date: currentDate },
+                success: function(response) {
+                    console.log("State saved successfully");
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error saving state");
+                }
+            });
+        };
+
+
+            
+        function createNewNoteSection(option) {
+            var notesArea = document.getElementById("notesArea");
+            var noteSection = document.createElement("div");
+            noteSection.className = "note-container";
+    
+            var placeholder = getPlaceholderText(option);
+            noteSection.innerHTML = 
+                '<h3>' + option + '</h3>' +
+                '<form onsubmit="saveNote(event, this, \''+ option +'\')">' +
+                '<input type="hidden" name="date" value="{{ date }}">' +
+                '<textarea name="note" placeholder="' + placeholder + '"></textarea>' +
+                '<button type="submit">Save Note</button>' +
+                '</form>';
+            notesArea.appendChild(noteSection);
+        }
+    
+        function getPlaceholderText(option) {
+            switch(option) {
+                case 'Daily Task': return 'Write down any notes or reflection you have from your daily task...';
+                case 'Introspect': return '1 - Replay the Entire day in slow motion\n2 - Ask yourself\n   1 - What did I do today\n   2 - How did my mind feel in that situation\n   3 - How did i react in that situation\n4 - No judging';
+                case 'Detect': return '1 - The stage of judging and discriminating the merits of thoughts, actions and emotions.\n2 - Vigilantly avoid justification or being defensive.\n3 - Call a spade a spade and be extremely truthful.';
+                case 'Negate': return '1 - Build a sense of URGENCY to remove negativities.\n2 - Induce the change by being SHAMEFUL of the negativity.\n3 - Don\'t wait till tomorrow to change (remove now !)';
+                case 'Subsitute': return '1 - Fill the void created by negation with a suitable and powerful positivity.\n2 - Embrace the vitality and channel it towards inculcating positive attributes in our character.\n3 - Example: Substitute Jealousy by inspiration/admiration etc.';
+                case 'Extra Notes': return 'Write down any extra notes that you may have...';
+                default: return 'Enter your note here...';
+            }
+        }
+    
+        function saveNote(event, form, option) {
+            event.preventDefault();
+            let formData = $(form).serialize() + '&note_type=' + encodeURIComponent(option); 
+            $.ajax({
+                type: 'POST',
+                url: '/save_note',
+                data: formData,
+                success: function(response) {
+                    $('#notesArea').append('<div class="note-container"><h3>' + option + '</h3><p>' + form.note.value + '</p></div>');
+                    form.parentElement.remove(); 
+                }
+            });
+        }
+    
+        window.onload = function() {
+            if("{{ daily_task }}".trim().length > 0) {
+                document.getElementById("dailyTaskModal").style.display = 'block';
+            }
+        };
+    
+        function closeModal() {
+            document.getElementById("dailyTaskModal").style.display = "none";
+        }
+    </script>
+    
+</body>
+</html>

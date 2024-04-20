@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Add viewport meta tag for responsiveness -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            height: 100vh; /* Set height to full viewport height */
+            display: flex; /* Use flexbox for vertical centering */
+            flex-direction: column; /* Arrange children vertically */
+            justify-content: flex-start; /* Align items to the top */
+        }
+        .logo-container {
+            margin-bottom: auto; /* Pushes the form to the bottom */
+            text-align: center; /* Center align the logo */
+        }
+        .login-form {
+            background: white;
+            padding: 20px; /* Decreased padding */
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            width: 80%; /* Set width to 80% of the viewport */
+            max-width: 400px; /* Added max-width */
+            margin: auto; /* Center the form */
+        }
+        label, input {
+            display: block;
+            width: calc(100% - 20px); /* Adjusted width to account for padding */
+            margin-bottom: 15px;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff8400;
+            color: rgb(0, 0, 0);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .forgot-password {
+            display: block;
+            text-align: center; /* Center align the forgot password link */
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="/static/logo.png" alt="Logo">
+    </div>
+    <form class="login-form" method="POST" action="/login">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        
+        <button type="submit">Login</button>
+
+        <a href="/signup" class="forgot-password">No Account, No worries?</a>
+    </form>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Add viewport meta tag for responsiveness -->
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css' rel='stylesheet' />
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000; /* Black background */
+            color: #ff7f00; /* Orange text */
+            margin: 0;
+            padding: 0;
+        }
+    
+        h1 {
+            color: #ff7f00; /* Orange heading */
+            text-align: center;
+            margin-top: 20px;
+        }
+    
+        .title-bar {
+            background-color: black;
+            color: #ff7f00; /* Orange text */
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+        }
+    
+        .logo {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            width: 30px;
+            height: auto;
+        }
+
+        .dashboard-icon {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 30px;
+            height: auto;
+            cursor: pointer;
+        }
+
+        #calendar {
+            background-color: #ffffff; /* White background */
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1); /* Subtle shadow */
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        /* Adjustments for mobile */
+        @media only screen and (max-width: 600px) {
+            #calendar {
+                padding: 10px; /* Reduce padding */
+            }
+            .fc-button,
+            .fc-prev-button,
+            .fc-next-button {
+                padding: 5px 10px; /* Reduce button padding */
+            }
+        }
+    
+        .fc-button {
+            background-color: #ff7f00; /* Orange button background */
+            color: #ffffff; /* White button text */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+    
+        .fc-button:hover {
+            background-color: #ffaa64; /* Lighter orange background on hover */
+        }
+    
+        .fc-day-header {
+            color: #222; /* Very little black text */
+        }
+    
+        .fc-day {
+            color: #ff7f00; /* Orange day number */
+        }
+    
+        .fc-today {
+            background-color: #ff7f00; /* Orange background for today's date */
+            color: #ffffff; /* White text for today's date */
+        }
+    
+        .fc-event {
+            background-color: #ff7f00; /* Orange background for events */
+            border-color: #ff7f00; /* Orange border for events */
+            color: #ffffff; /* White text for events */
+        }
+    
+        /* Styling for previous and next buttons */
+        .fc-prev-button,
+        .fc-next-button {
+            background-color: #000000; /* Black background */
+            color: #ffffff; /* White text */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+    
+        .fc-prev-button:hover,
+        .fc-next-button:hover {
+            background-color: #333333; /* Darker black background on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="title-bar">
+        <img src="/static/logo.png" alt="Logo" class="logo">
+        <h1>Calendar</h1>
+        <a href="/dashboard"><img src="/static/dash.png" alt="Dashboard" class="dashboard-icon"></a>
+    </div>
+    
+    <div id='calendar'></div>
+    
+    <script>
+        $(document).ready(function() {
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'today',
+                    center: 'title',
+                    right: 'prev,next'
+                },
+                defaultView: 'month',
+                editable: false,
+                eventLimit: true, // allow "more" link when too many events
+                events: [
+                    // Add events dynamically here
+                    {% for date, count in notes_count.items() %}
+                    {
+                        title: '{{ count }}',
+                        start: '{{ date }}',
+                        backgroundColor: '#ff0000' // Customize color as needed
+                    },
+                    {% endfor %}
+                ],
+                dayRender: function (date, cell) {
+                    var dateString = date.format('YYYY-MM-DD');
+                    var noteCount = '{{ notes_count.get(dateString, 0) }}';
+                    if (noteCount !== '0') {
+                        cell.append('<div class="note-count">' + noteCount + '</div>');
+                    }
+                },
+                dayClick: function(date, jsEvent, view) {
+                    window.location.href = '/notes/' + date.format('YYYY-MM-DD');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

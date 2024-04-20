@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 50px; /* Increased padding for the header */
+            background-color: #333;
+            color: #fff;
+            font-size: 54px; /* Increased font size for the title */
+        }
+        .logo {
+            width: 50px; /* Adjust size as needed */
+            height: 50px; /* Adjust size as needed */
+            margin-right: 10px;
+            cursor: pointer; /* Add cursor pointer */
+        }
+
+        .title {
+            margin: 0; /* Remove any margin */
+        }
+        .container {
+            padding: 20px;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 48px; /* Decreased font size for section title */
+            margin-bottom: 20px;
+        }
+        .stat-container {
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            position: relative; /* Added position relative */
+            width: 400px; /* Decreased width for the circles */
+            height: 400px; /* Decreased height for the circles */
+            border-radius: 50%; /* Set border-radius to 50% to create a circle */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+        .stat-box:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .circle-progress {
+            width: 100%; /* Set width to 100% to fill the circle */
+            height: 100%; /* Set height to 100% to fill the circle */
+            border-radius: 50%; /* Set border-radius to 50% to create a circle */
+            text-align: center;
+            font-size: 48px; /* Decreased font size for circle progress */
+            color: #000000;
+            background: #ddd;
+            display: flex; /* Added */
+            align-items: center; /* Added */
+            justify-content: center; /* Added */
+            position: absolute; /* Added */
+            top: 0; /* Added */
+            left: 0; /* Added */
+            bottom: 0; /* Added */
+            right: 0; /* Added */
+        }
+        .stat-label {
+            margin-top: 10px;
+            font-size: 48px;
+        }
+        .quote {
+            font-style: italic;
+            font-size: 48px;
+        }
+        .separator {
+            margin-top: 40px;
+            border-top: 2px solid #ccc;
+        }
+        .logout-button {
+            background-color: #ff7f00; /* Orange background */
+            color: #fff; /* White text */
+            border: none;
+            border-radius: 10px; /* Increased border-radius for rounded corners */
+            padding: 30px 60px; /* Increased padding for better visibility */
+            font-size: 24px; /* Adjust font size */
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Smooth transition */
+            text-decoration: none; /* Remove default link underline */
+            display: inline-block; /* Make the button inline-block */
+        }
+        .logout-button:hover {
+            background-color: #ffaa64; /* Lighter orange background on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <a href="/"><img src="/static/logo.png" alt="Logo" class="logo"></a> <!-- Make logo clickable -->
+        </div>
+        <div class="title">Dashboard</div>
+        <!-- You can add any additional elements here -->
+    </div>
+    <div class="container">
+        <div class="section">
+            <div class="section-title">Daily Progress</div>
+            <div class="stat-container">
+                <div class="stat-box">
+                    <div class="circle-progress" id="notes30Days"></div>
+                </div>
+                <div class="stat-label">Notes (30 Days)</div>
+            </div>
+            <div class="stat-container">
+                <div class="stat-box">
+                    <div class="circle-progress" id="notesYearAvg"></div>
+                </div>
+                <div class="stat-label">Notes (Yearly Avg)</div>
+            </div>
+            <div class="stat-container">
+                <div class="stat-box">
+                    <div class="circle-progress" id="taskCompletion30Days"></div>
+                </div>
+                <div class="stat-label">Task Completion (30 Days)</div>
+            </div>
+            <div class="stat-container">
+                <div class="stat-box">
+                    <div class="circle-progress" id="taskCompletionYear"></div>
+                </div>
+                <div class="stat-label">Task Completion (Yearly)</div>
+            </div>
+        </div>
+        <div class="separator"></div> <!-- Added separator -->
+        <div class="section">
+            <div class="section-title">Motivational Quotes</div>
+            <div class="quote" id="motivationalQuote"></div>
+        </div>
+        <div class="separator"></div> <!-- Added separator -->
+        <a href="/logout" class="logout-button">Logout</a> <!-- Added Logout button -->
+    </div>
+    <script>
+        fetch('/dashboard_data')
+            .then(response => response.json())
+            .then(data => {
+                updateCircleProgress('notes30Days', calculateAverage(data.notes_30_days, 30), '#ff6384');
+                updateCircleProgress('notesYearAvg', calculateAverage(data.notes_year_avg, 12), '#36a2eb');
+                updateCircleProgress('taskCompletion30Days', data.completion_rate_30_days, '#4bc0c0');
+                updateCircleProgress('taskCompletionYear', data.completion_rate_year, '#ffcd56');
+                displayQuote();
+            })
+            .catch(error => console.error('Error fetching data:', error));
+
+        function updateCircleProgress(id, percentage, color) {
+            const element = document.getElementById(id);
+            element.textContent = Math.round(percentage) + '%';
+            element.style.background = `conic-gradient(${color} ${percentage * 3.6}deg, #ffffff 0deg)`; /* Adjust background color */
+        }
+
+        function calculateTotal(data) {
+            return Object.values(data).reduce((a, b) => a + b, 0);
+        }
+
+        function calculateAverage(data, period) {
+            let total = calculateTotal(data);
+            return (total / period) * 100;
+        }
+
+        function displayQuote() {
+            fetch('/get_random_quote')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('motivationalQuote').textContent = `"${data.quote}"`;
+                })
+                .catch(error => console.error('Error fetching quote:', error));
+        }
+    </script>
+</body>
+</html>

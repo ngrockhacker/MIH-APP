@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Add viewport meta tag for responsiveness -->
+    <style>
+        /* Existing styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Rest of your existing styles... */
+        .title-bar {
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .title-bar h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .logo {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            width: 30px;
+            height: auto;
+        }
+
+        .buttons-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .home-button {
+            background-color: orange;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            outline: none;
+            margin: 0 5px;
+        }
+
+        .home-button:hover {
+            background-color: #ff7f00;
+        }
+
+        #dailyTaskCheckboxContainer {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        #dailyTaskCheckbox {
+            margin-top: 10px;
+            display: inline-block; /* Ensure the checkbox is displayed inline */
+        }
+
+        /* Styles for the daily task popup */
+        #dailyTaskModal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            padding-top: 60px;
+        }
+
+        #dailyTaskModalContent {
+            background-color: #fefefe;
+            margin: 5% auto; /* 5% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%; /* Adjust width for mobile */
+            text-align: center;
+            border-radius: 15px; /* Rounded corners for the modal */
+        }
+        
+        #dailyTaskModalContent button {
+            background-color: orange;
+            color: #fff;
+            border: none;
+            border-radius: 10px; /* Rounded corners for the button */
+            padding: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            display: block; /* Ensure button takes full width on mobile */
+            margin: 10px auto; /* Center button */
+        }
+
+        #dailyTaskModalContent button:hover {
+            background-color: #ff7f00;
+        }
+
+        /* Add any other custom styles here */
+        .dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #fff;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1;
+        }
+
+        .dropdown a {
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            color: #222;
+        }
+
+        .dropdown a:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Style for note container */
+        .note-container {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: #fff;
+            padding-left: 20px; /* Add left padding */
+        }
+    </style>
+</head>
+<body>
+    <div class="title-bar">
+        <a href="/" style="text-decoration: none; color: inherit;"> <!-- Anchor tag added -->
+            <img src="/static/logo.png" alt="Logo" class="logo">
+            <h1>Notes</h1>
+        </a> <!-- Anchor tag added -->
+    </div>
+    
+
+    <div class="buttons-container">
+        <button id="viewDailyTaskButton" class="home-button">View Daily Task</button>
+        <button id="dropdownButton" class="home-button">+</button>
+        <!-- Dropdown Menu -->
+        <div id="dropdownMenu" class="dropdown">
+            <a href="#" onclick="createNewNoteSection('Daily Task')">Daily Task</a>
+            <a href="#" onclick="createNewNoteSection('Introspect')">Introspect</a>
+            <a href="#" onclick="createNewNoteSection('Detect')">Detect</a>
+            <a href="#" onclick="createNewNoteSection('Negate')">Negate</a>
+            <a href="#" onclick="createNewNoteSection('Subsitute')">Substitute</a>
+            <a href="#" onclick="createNewNoteSection('Extra Notes')">Extra Notes</a>
+        </div>
+    </div>
+
+    <!-- Add delete and edit buttons to each note container -->
+    <div id="notesArea">
+        {% for note in notes %}
+            <div class="note-container" data-note-type="{{ note.type }}">
+                <div class="note-header">
+                    <h3>{{ note.type }}</h3>
+                    <div class="note-buttons">
+                        <button class="edit-button" onclick="editNote('{{ note.type }}', '{{ note.content }}')">Edit</button>
+                        <button class="delete-button" onclick="deleteNote('{{ note.type }}')">Delete</button>
+                    </div>
+                </div>
+                <p>{{ note.content }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+
+    <div id="dailyTaskCheckboxContainer">
+        <input type="checkbox" id="dailyTaskCheckbox" class="home-checkbox" {{ 'checked' if daily_task_completed else '' }}/>
+        <label for="dailyTaskCheckbox">Daily Task Completed</label>
+    </div>
+
+    <!-- Daily Task Popup -->
+    <div id="dailyTaskModal">
+        <div id="dailyTaskModalContent">
+            <p>Your Task for today is: <br><strong>{{ daily_task }}</strong></p>
+            <button onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        document.addEventListener('click', function(event) {
+            var dropdownMenu = document.getElementById("dropdownMenu");
+            var dropdownButton = document.getElementById("dropdownButton");
+
+            // Check if the clicked element is outside of the dropdown menu and the dropdown button
+            if (!dropdownMenu.contains(event.target) && event.target !== dropdownButton) {
+                dropdownMenu.style.display = 'none';
+            }
+        });
+        // Event listener for the "Add" button
+        document.getElementById("dropdownButton").onclick = function() {
+            var dropdownMenu = document.getElementById("dropdownMenu");
+            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+        };
+    
+        document.getElementById("viewDailyTaskButton").onclick = function() {
+            document.getElementById("dailyTaskModal").style.display = 'block';
+        };
+    
+        document.getElementById("dailyTaskCheckbox").onchange = function() {
+            let checkboxState = this.checked;
+            let currentDate = '{{ date }}';  // Flask template variable for the current date
+            $.ajax({
+                type: 'POST',
+                url: '/save_daily_task_state',
+                data: { daily_task_completed: checkboxState, date: currentDate },
+                success: function(response) {
+                    console.log("State saved successfully");
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error saving state");
+                }
+            });
+        };
+    
+        function createNewNoteSection(option) {
+            var notesArea = document.getElementById("notesArea");
+            var noteSection = document.createElement("div");
+            noteSection.className = "note-container";
+    
+            var placeholder = getPlaceholderText(option);
+            noteSection.innerHTML = 
+                '<h3>' + option + '</h3>' +
+                '<form onsubmit="saveNote(event, this, \''+ option +'\')">' +
+                '<input type="hidden" name="date" value="{{ date }}">' +
+                '<textarea name="note" placeholder="' + placeholder + '"></textarea>' +
+                '<button type="submit">Save Note</button>' +
+                '</form>';
+            notesArea.appendChild(noteSection);
+    
+            closeModal(); // Close modal immediately after appending note
+        }
+
+        function deleteNote(type) {
+            if (confirm("Are you sure you want to delete this note?")) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/delete_note',
+                    data: { note_type: type },
+                    success: function(response) {
+                        // Remove the deleted note from the UI
+                        $('.note-container').each(function() {
+                            if ($(this).find('h3').text() === type) {
+                                $(this).remove();
+                            }
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("Error deleting note");
+                    }
+                });
+            }
+        }
+
+
+
+
+
+
+
+
+
+        function editNote(type, content) {
+            // Display a prompt to enter the new content
+            var newContent = prompt("Edit note:", content);
+            if (newContent !== null) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/edit_note',
+                    data: { note_type: type, new_content: newContent },
+                    success: function(response) {
+                        // Update the content of the edited note in the DOM
+                        $('.note-container h3:contains("' + type + '")').siblings('p').text(newContent);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("Error editing note");
+                    }
+                });
+            }
+        }
+    
+        function getPlaceholderText(option) {
+            switch(option) {
+                case 'Daily Task': return 'Write down any notes or reflection you have from your daily task...';
+                case 'Introspect': return '1 - Replay the Entire day in slow motion\n2 - Ask yourself\n   1 - What did I do today\n   2 - How did my mind feel in that situation\n   3 - How did i react in that situation\n4 - No judging';
+                case 'Detect': return '1 - The stage of judging and discriminating the merits of thoughts, actions and emotions.\n2 - Vigilantly avoid justification or being defensive.\n3 - Call a spade a spade and be extremely truthful.';
+                case 'Negate': return '1 - Build a sense of URGENCY to remove negativities.\n2 - Induce the change by being SHAMEFUL of the negativity.\n3 - Don\'t wait till tomorrow to change (remove now !)';
+                case 'Subsitute': return '1 - Fill the void created by negation with a suitable and powerful positivity.\n2 - Embrace the vitality and channel it towards inculcating positive attributes in our character.\n3 - Example: Substitute Jealousy by inspiration/admiration etc.';
+                case 'Extra Notes': return 'Write down any extra notes that you may have...';
+                default: return 'Enter your note here...';
+            }
+        }
+    
+        function saveNote(event, form, option) {
+            event.preventDefault();
+            let formData = $(form).serialize() + '&note_type=' + encodeURIComponent(option); 
+            $.ajax({
+                type: 'POST',
+                url: '/save_note',
+                data: formData,
+                success: function(response) {
+                    // Create a new note container with delete and edit buttons
+                    var newNoteContainer = $('<div class="note-container"></div>');
+                    var deleteButton = $('<button class="delete-button" onclick="deleteNote(\'' + option + '\')">Delete</button>');
+                    var editButton = $('<button class="edit-button" onclick="editNote(\'' + option + '\', \'' + form.note.value + '\')">Edit</button>');
+                    var noteContent = $('<p>' + form.note.value + '</p>');
+
+                    // Append delete and edit buttons along with note content to the new note container
+                    newNoteContainer.append('<h3>' + option + '</h3>', deleteButton, editButton, noteContent);
+
+                    // Append the new note container to the notesArea
+                    $('#notesArea').append(newNoteContainer);
+
+                    // Remove the form element after saving the note
+                    form.parentElement.remove();
+                }
+            });
+        }
+
+    
+        // Event listener for dropdown menu options
+        var dropdownOptions = document.querySelectorAll("#dropdownMenu a");
+        dropdownOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                var dropdownMenu = document.getElementById("dropdownMenu");
+                dropdownMenu.style.display = 'none';
+            });
+        });
+    
+        window.onload = function() {
+            if("{{ daily_task }}".trim().length > 0) {
+                document.getElementById("dailyTaskModal").style.display = 'block';
+            }
+        };
+    
+        function closeModal() {
+            document.getElementById("dailyTaskModal").style.display = "none";
+        }
+        
+    </script>
+    
+    
+</body>
+</html>

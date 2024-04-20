@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            justify-content: center;
+        }
+        .stat-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .stat-box {
+            width: 150px;
+            height: 150px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+        .stat-box:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .circle-progress {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 120px;
+            font-size: 20px;
+            color: #fff;
+            background: #ddd;
+            transition: background 0.3s ease;
+        }
+        .stat-label {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+        .quote {
+            font-style: italic;
+            font-size: 18px;
+        }
+        .dark-mode-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 34px;
+            background-color: #ccc;
+            border-radius: 34px;
+            cursor: pointer;
+            transition: all 0.3s linear;
+        }
+        .switch-ball {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s linear;
+        }
+        body.dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        body.dark-mode .dark-mode-switch {
+            background-color: #666;
+        }
+        body.dark-mode .switch-ball {
+            transform: translateX(26px);
+        }
+        body.dark-mode .container,
+        body.dark-mode .stat-box,
+        body.dark-mode .quote {
+            background: #222;
+            color: #fff;
+        }
+        body.dark-mode .circle-progress {
+            background: #444;
+            color: #000; /* Black text in dark mode */
+        }
+        body.dark-mode .stat-label {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="dark-mode-switch" onclick="toggleDarkMode()">
+        <div class="switch-ball"></div>
+    </div>
+    <div class="container">
+        <div class="section">
+            <div class="section-title">Daily Progress</div>
+            <div class="progress-grid">
+                <div class="stat-container">
+                    <div class="stat-box">
+                        <div class="circle-progress" id="notes30Days"></div>
+                    </div>
+                    <div class="stat-label">Notes (30 Days)</div>
+                </div>
+                <div class="stat-container">
+                    <div class="stat-box">
+                        <div class="circle-progress" id="notesYearAvg"></div>
+                    </div>
+                    <div class="stat-label">Notes (Yearly Avg)</div>
+                </div>
+                <div class="stat-container">
+                    <div class="stat-box">
+                        <div class="circle-progress" id="taskCompletion30Days"></div>
+                    </div>
+                    <div class="stat-label">Task Completion (30 Days)</div>
+                </div>
+                <div class="stat-container">
+                    <div class="stat-box">
+                        <div class="circle-progress" id="taskCompletionYear"></div>
+                    </div>
+                    <div class="stat-label">Task Completion (Yearly)</div>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-title">Motivational Quotes</div>
+            <div class="quote" id="motivationalQuote"></div>
+        </div>
+    </div>
+    <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+        fetch('/dashboard_data')
+            .then(response => response.json())
+            .then(data => {
+                updateCircleProgress('notes30Days', calculateAverage(data.notes_30_days, 30), '#ff6384');
+                updateCircleProgress('notesYearAvg', calculateAverage(data.notes_year_avg, 12), '#36a2eb');
+                updateCircleProgress('taskCompletion30Days', data.completion_rate_30_days, '#4bc0c0');
+                updateCircleProgress('taskCompletionYear', data.completion_rate_year, '#ffcd56');
+                displayQuote();
+            });
+        function updateCircleProgress(id, percentage, color) {
+            const element = document.getElementById(id);
+            element.textContent = Math.round(percentage) + '%';
+            element.style.background = `conic-gradient(${color} ${percentage * 3.6}deg, #ddd 0deg)`;
+        }
+        function calculateTotal(data) {
+            return Object.values(data).reduce((a, b) => a + b, 0);
+        }
+        function calculateAverage(data, period) {
+            let total = calculateTotal(data);
+            return (total / period) * 100;
+        }
+        function displayQuote() {
+            fetch('/get_random_quote')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('motivationalQuote').textContent = `"${data.quote}"`;
+                })
+                .catch(error => console.error('Error fetching quote:', error));
+        }
+    </script>
+</body>
+</html>
