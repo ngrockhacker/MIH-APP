@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Add viewport meta tag -->
     <title>Dashboard</title>
     <style>
         body {
@@ -14,14 +15,14 @@
         .header {
             display: flex;
             align-items: center;
-            padding: 50px; /* Increased padding for the header */
+            padding: 20px; /* Adjusted padding for the header */
             background-color: #333;
             color: #fff;
-            font-size: 54px; /* Increased font size for the title */
+            font-size: 24px; /* Adjusted font size for the title */
         }
         .logo {
-            width: 50px; /* Adjust size as needed */
-            height: 50px; /* Adjust size as needed */
+            width: 30px; /* Adjusted size for the logo */
+            height: 30px; /* Adjusted size for the logo */
             margin-right: 10px;
             cursor: pointer; /* Add cursor pointer */
         }
@@ -30,42 +31,42 @@
             margin: 0; /* Remove any margin */
         }
         .container {
-            padding: 20px;
+            padding: 10px; /* Adjusted padding */
             text-align: center;
         }
         .section {
-            margin-bottom: 40px;
+            margin-bottom: 20px; /* Adjusted margin */
         }
         .section-title {
-            font-size: 48px; /* Decreased font size for section title */
-            margin-bottom: 20px;
+            font-size: 24px; /* Adjusted font size for section title */
+            margin-bottom: 10px; /* Adjusted margin */
         }
         .stat-container {
-            margin-bottom: 20px;
+            margin-bottom: 10px; /* Adjusted margin */
         }
         .stat-box {
             position: relative; /* Added position relative */
-            width: 400px; /* Decreased width for the circles */
-            height: 400px; /* Decreased height for the circles */
+            width: 200px; /* Adjusted width for the circles */
+            height: 200px; /* Adjusted height for the circles */
             border-radius: 50%; /* Set border-radius to 50% to create a circle */
             display: flex;
             align-items: center;
             justify-content: center;
             margin: auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             background: linear-gradient(145deg, #ffffff, #e6e6e6);
             transition: transform 0.5s ease, box-shadow 0.5s ease;
         }
         .stat-box:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
         }
         .circle-progress {
             width: 100%; /* Set width to 100% to fill the circle */
             height: 100%; /* Set height to 100% to fill the circle */
             border-radius: 50%; /* Set border-radius to 50% to create a circle */
             text-align: center;
-            font-size: 48px; /* Decreased font size for circle progress */
+            font-size: 24px; /* Adjusted font size for circle progress */
             color: #000000;
             background: #ddd;
             display: flex; /* Added */
@@ -78,24 +79,24 @@
             right: 0; /* Added */
         }
         .stat-label {
-            margin-top: 10px;
-            font-size: 48px;
+            margin-top: 5px; /* Adjusted margin */
+            font-size: 18px; /* Adjusted font size */
         }
         .quote {
             font-style: italic;
-            font-size: 48px;
+            font-size: 24px; /* Adjusted font size */
         }
         .separator {
-            margin-top: 40px;
-            border-top: 2px solid #ccc;
+            margin-top: 20px; /* Adjusted margin */
+            border-top: 1px solid #ccc; /* Adjusted border */
         }
         .logout-button {
             background-color: #ff7f00; /* Orange background */
             color: #fff; /* White text */
             border: none;
-            border-radius: 10px; /* Increased border-radius for rounded corners */
-            padding: 30px 60px; /* Increased padding for better visibility */
-            font-size: 24px; /* Adjust font size */
+            border-radius: 5px; /* Increased border-radius for rounded corners */
+            padding: 15px 30px; /* Adjusted padding for better visibility */
+            font-size: 18px; /* Adjusted font size */
             cursor: pointer;
             transition: background-color 0.3s ease; /* Smooth transition */
             text-decoration: none; /* Remove default link underline */
