@@ -1,4 +1,4 @@
 Flask[async]
-Flask-Login
+Flask-Login[async]
 Werkzeug
 asyncpg
