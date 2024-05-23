@@ -62,7 +62,7 @@ async def login():
         await conn.close()
         if user:
             user_obj = User(user['id'])
-            await login_user(user_obj)
+            login_user(user_obj)
             return redirect(url_for('home'))
         else:
             flash('Invalid username or password', 'error')
@@ -75,6 +75,7 @@ async def login():
         return render_template('login_mobile.html', login_mobile=True)
     else:
         return render_template('login.html', login=True)
+
 
 @app.route('/logout')
 @login_required
