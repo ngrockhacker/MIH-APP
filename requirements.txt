@@ -1,4 +1,4 @@
 Flask
 Flask-Login
 Werkzeug
-asyncpg==0.25.0
+asyncpg
