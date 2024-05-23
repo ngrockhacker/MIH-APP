@@ -62,7 +62,7 @@ async def login():
         await conn.close()
         if user:
             user_obj = User(user['id'])
-            login_user(user_obj)
+            await login_user(user_obj)
             return redirect(url_for('home'))
         else:
             flash('Invalid username or password', 'error')
@@ -78,8 +78,8 @@ async def login():
 
 @app.route('/logout')
 @login_required
-def logout():
-    logout_user()
+async def logout():
+    await logout_user()
     return redirect(url_for('login'))
 
 @app.route('/get_random_quote')
@@ -116,7 +116,7 @@ async def home():
 
 @app.route('/dashboard')
 @login_required
-def dashboard():
+async def dashboard():
     user_agent = request.user_agent.string
     is_mobile = 'iPhone' in user_agent or 'Android' in user_agent
 
