@@ -100,7 +100,7 @@ async def get_random_quote():
 @app.route('/')
 @login_required
 async def home():
-    user = await current_user
+    user = await current_user()
     notes_count = {}
     conn = await get_db_connection()
     notes_cursor = await conn.fetch('SELECT date, COUNT(*) FROM notes WHERE user_id = $1 GROUP BY date', user.id)
@@ -115,6 +115,7 @@ async def home():
         return render_template('index_mobile.html', notes_count=notes_count)
     else:
         return render_template('index.html', notes_count=notes_count)
+
 
 
 @app.route('/dashboard')
